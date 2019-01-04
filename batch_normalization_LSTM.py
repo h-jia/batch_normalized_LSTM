@@ -96,13 +96,14 @@ class LSTMCell(nn.Module):
         Initialize parameters following the way proposed in the paper.
         """
 
-        init.orthogonal(self.weight_ih.data)
+        init.orthogonal_(self.weight_ih.data)
         weight_hh_data = torch.eye(self.hidden_size)
         weight_hh_data = weight_hh_data.repeat(1, 4)
-        self.weight_hh.data.set_(weight_hh_data)
+        with torch.no_grad():
+            self.weight_hh.set_(weight_hh_data)
         # The bias is just set to zero vectors.
         if self.use_bias:
-            init.constant(self.bias.data, val=0)
+            init.constant_(self.bias.data, val=0)
 
     def forward(self, input_, hx):
         """
@@ -122,8 +123,7 @@ class LSTMCell(nn.Module):
                       .expand(batch_size, *self.bias.size()))
         wh_b = torch.addmm(bias_batch, h_0, self.weight_hh)
         wi = torch.mm(input_, self.weight_ih)
-        f, i, o, g = torch.split(wh_b + wi,
-                                 split_size=self.hidden_size, dim=1)
+        f, i, o, g = torch.split(wh_b + wi, self.hidden_size, dim=1)
         c_1 = torch.sigmoid(f) * c_0 + torch.sigmoid(i) * torch.tanh(g)
         h_1 = torch.sigmoid(o) * torch.tanh(c_1)
         return h_1, c_1
@@ -166,14 +166,15 @@ class BNLSTMCell(nn.Module):
         """
 
         # The input-to-hidden weight matrix is initialized orthogonally.
-        init.orthogonal(self.weight_ih.data)
+        init.orthogonal_(self.weight_ih.data)
         # The hidden-to-hidden weight matrix is initialized as an identity
         # matrix.
         weight_hh_data = torch.eye(self.hidden_size)
         weight_hh_data = weight_hh_data.repeat(1, 4)
-        self.weight_hh.data.set_(weight_hh_data)
+        with torch.no_grad():
+            self.weight_hh.set_(weight_hh_data)
         # The bias is just set to zero vectors.
-        init.constant(self.bias.data, val=0)
+        init.constant_(self.bias.data, val=0)
         # Initialization of BN parameters.
         self.bn_ih.reset_parameters()
         self.bn_hh.reset_parameters()
@@ -206,8 +207,7 @@ class BNLSTMCell(nn.Module):
         wi = torch.mm(input_, self.weight_ih)
         bn_wh = self.bn_hh(wh, time=time)
         bn_wi = self.bn_ih(wi, time=time)
-        f, i, o, g = torch.split(bn_wh + bn_wi + bias_batch,
-                                 split_size=self.hidden_size, dim=1)
+        f, i, o, g = torch.split(bn_wh + bn_wi + bias_batch, self.hidden_size, dim=1)
         c_1 = torch.sigmoid(f) * c_0 + torch.sigmoid(i) * torch.tanh(g)
         h_1 = torch.sigmoid(o) * torch.tanh(self.bn_c(c_1, time=time))
         return h_1, c_1
