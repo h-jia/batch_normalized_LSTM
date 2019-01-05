@@ -2,7 +2,6 @@
 import torch
 from torch import nn
 from torch.nn import functional, init
-from pdb import set_trace
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -256,7 +255,6 @@ class LSTM(nn.Module):
             else:
                 h_next, c_next = cell(input_=input_[time], hx=hx)
             mask = (time < length).float().unsqueeze(1).expand_as(h_next).to(device)
-            # set_trace()
             h_next = (h_next * mask + hx[0] * (1 - mask)).to(device)
             c_next = (c_next * mask + hx[1] * (1 - mask)).to(device)
             hx_next = (h_next, c_next)
