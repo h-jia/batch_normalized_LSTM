@@ -1,5 +1,6 @@
 # A Implementation of batch normalization LSTM in pytorch
 
+Source paper see Tim Cooijmans etl. [Recurrent Batch Normalization](https://arxiv.org/abs/1603.09025)
 Frok from sysuNie
 Modified to be compatible with Pytorch 1.0.0
 
