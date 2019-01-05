@@ -2,7 +2,7 @@
 
 *Tim Cooijmans etl.* [Recurrent Batch Normalization(arxiv1603.09025)](https://arxiv.org/abs/1603.09025)
 
-Frok from sysuNie
+Frok from [sysuNie](https://github.com/sysuNie/batch_normalized_LSTM)
 
 Modified to be compatible with Pytorch 1.0.0
 
