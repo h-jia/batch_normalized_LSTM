@@ -1,8 +1,10 @@
 """Implementation of batch-normalized LSTM."""
 import torch
 from torch import nn
-from torch.autograd import Variable
 from torch.nn import functional, init
+from pdb import set_trace
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class SeparatedBatchNorm1d(nn.Module):
@@ -253,9 +255,10 @@ class LSTM(nn.Module):
                 h_next, c_next = cell(input_=input_[time], hx=hx, time=time)
             else:
                 h_next, c_next = cell(input_=input_[time], hx=hx)
-            mask = (time < length).float().unsqueeze(1).expand_as(h_next)
-            h_next = h_next * mask + hx[0] * (1 - mask)
-            c_next = c_next * mask + hx[1] * (1 - mask)
+            mask = (time < length).float().unsqueeze(1).expand_as(h_next).to(device)
+            # set_trace()
+            h_next = (h_next * mask + hx[0] * (1 - mask)).to(device)
+            c_next = (c_next * mask + hx[1] * (1 - mask)).to(device)
             hx_next = (h_next, c_next)
             output.append(h_next)
             hx = hx_next
@@ -267,12 +270,12 @@ class LSTM(nn.Module):
             input_ = input_.transpose(0, 1)
         max_time, batch_size, _ = input_.size()
         if length is None:
-            length = Variable(torch.LongTensor([max_time] * batch_size))
+            length = torch.LongTensor([max_time] * batch_size)
             # if input_.is_cuda:
             #     device = input_.get_device()
             #     length = length.cuda(device)
         if hx is None:
-            hx = Variable(input_.data.new(batch_size, self.hidden_size).zero_())
+            hx = input_.data.new(batch_size, self.hidden_size).zero_()
             hx = (hx, hx)
         h_n = []
         c_n = []
