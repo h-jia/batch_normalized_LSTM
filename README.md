@@ -1,4 +1,4 @@
-# An Implementation of batch normalization LSTM in pytorch
+# An Implementation of Batch Normalization LSTM in Pytorch
 
 *Tim Cooijmans etl.* [Recurrent Batch Normalization(arxiv1603.09025)](https://arxiv.org/abs/1603.09025)
 
