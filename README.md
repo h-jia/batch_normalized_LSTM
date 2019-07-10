@@ -18,8 +18,8 @@ model = LSTM(cell_class=BNLSTMCell, input_size=28, hidden_size=512, batch_first=
 
 if __name__ == "__main__":
     size = 28
-    dummy1 = torch.rand(300, 2, size)
-    out = model(dummy1)
+    dummy = torch.rand(300, 2, size)
+    out = model(dummy)
     print(model)
     print(out[0])
 ```
